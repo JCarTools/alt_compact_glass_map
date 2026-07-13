@@ -246,6 +246,10 @@ if (window.androidApi && androidApi.onJsReady) {
   androidApi.onJsReady(TOKEN);
 }
 
+if (window.androidApi && androidApi.setMiniMapTheme) {
+  androidApi.setMiniMapTheme(TOKEN, "night");
+}
+
 if (window.androidApi && androidApi.subscribeMiniMap) {
   androidApi.subscribeMiniMap(TOKEN);
 }
