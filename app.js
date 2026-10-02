@@ -241,21 +241,22 @@ if ("ARAD" == data.hudSenderType){
 
 //console.log("androidApi =", window.androidApi);
 const TOKEN = "SECURE_TOKEN_2025";
+const isLayoutPreview = new URLSearchParams(location.search).get('preview') === '1';
 
-if (window.androidApi && androidApi.onJsReady) {
+if (!isLayoutPreview && window.androidApi && androidApi.onJsReady) {
   androidApi.onJsReady(TOKEN);
 }
 
-if (window.androidApi && androidApi.setMiniMapTheme) {
+if (!isLayoutPreview && window.androidApi && androidApi.setMiniMapTheme) {
   androidApi.setMiniMapTheme(TOKEN, "night");
 }
 
-if (window.androidApi && androidApi.subscribeMiniMap) {
+if (!isLayoutPreview && window.androidApi && androidApi.subscribeMiniMap) {
   androidApi.subscribeMiniMap(TOKEN);
 }
 
 window.addEventListener("beforeunload", function(){
-  if (window.androidApi && androidApi.unsubscribeMiniMap) {
+  if (!isLayoutPreview && window.androidApi && androidApi.unsubscribeMiniMap) {
     androidApi.unsubscribeMiniMap(TOKEN);
   }
 });
