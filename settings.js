@@ -27,6 +27,7 @@
   const $ = id => document.getElementById(id);
   const frame = $('preview');
   let settings = store.load();
+  let mode = 'navigation';
   let selected = store.widgets[0].id;
   let ratio = 1;
   let drag = null;
@@ -39,12 +40,12 @@
       : 'Не удалось сохранить. Проверьте доступ к хранилищу браузера.';
   }
   function position(id) {
-    const item = settings.widgets[id];
+    const item = settings.profiles[mode].widgets[id];
     const rect = api()?.rect(id);
     return { x: item.x ?? (rect ? rect.x / 10 : 0), y: item.y ?? (rect ? rect.y / 5.6 : 0) };
   }
   function refreshControls() {
-    const item = settings.widgets[selected];
+    const item = settings.profiles[mode].widgets[selected];
     const pos = position(selected);
     $('selectedName').textContent = store.widgets.find(w => w.id === selected).name;
     $('scale').value = item.scale * 100;
@@ -52,8 +53,9 @@
     $('posX').value = pos.x.toFixed(1);
     $('posY').value = pos.y.toFixed(1);
     rows.forEach(({ row, checkbox, button }, id) => {
+      row.hidden = !store.available(mode, id);
       row.classList.toggle('active', id === selected);
-      checkbox.checked = settings.widgets[id].visible;
+      checkbox.checked = settings.profiles[mode].widgets[id].visible;
       button.setAttribute('aria-pressed', String(id === selected));
     });
   }
@@ -61,19 +63,20 @@
     if (!api()) return;
     handles.forEach((handle, id) => {
       const rect = api().rect(id);
-      handle.hidden = !settings.widgets[id].visible;
+      handle.hidden = !store.available(mode, id) || !settings.profiles[mode].widgets[id].visible;
       handle.classList.toggle('selected', id === selected);
       Object.assign(handle.style, { left: rect.x + 'px', top: rect.y + 'px', width: rect.width + 'px', height: rect.height + 'px' });
     });
   }
   function render() {
+    api()?.setPreviewMode(mode);
     api()?.apply(settings);
     refreshControls();
     refreshHandles();
   }
   function update(patch, save = true) {
     const pos = position(selected);
-    settings.widgets[selected] = { ...settings.widgets[selected], ...pos, ...patch };
+    settings.profiles[mode].widgets[selected] = { ...settings.profiles[mode].widgets[selected], ...pos, ...patch };
     settings = store.normalize(settings);
     render();
     if (save) persist();
@@ -87,7 +90,7 @@
     const button = document.createElement('button');
     button.textContent = name;
     button.onclick = () => { selected = id; render(); };
-    checkbox.onchange = () => { settings.widgets[id].visible = checkbox.checked; render(); persist(); };
+    checkbox.onchange = () => { settings.profiles[mode].widgets[id].visible = checkbox.checked; render(); persist(); };
     row.append(checkbox, button);
     $('widgetList').append(row);
     rows.set(id, { row, checkbox, button });
@@ -129,11 +132,25 @@
       update({ [index ? 'y' : 'x']: $(id).valueAsNumber });
     };
   });
-  function visibility(visible) { store.widgets.forEach(({ id }) => { settings.widgets[id].visible = visible; }); render(); persist(); }
+  function visibility(visible) { store.widgets.forEach(({ id }) => { if (store.available(mode, id)) settings.profiles[mode].widgets[id].visible = visible; }); render(); persist(); }
   $('showAll').onclick = () => visibility(true);
   $('hideAll').onclick = () => visibility(false);
-  $('resetOne').onclick = () => { settings.widgets[selected] = store.normalize(null).widgets[selected]; render(); persist(); };
-  $('resetAll').onclick = () => { settings = store.normalize(null); render(); persist(); };
+  $('resetOne').onclick = () => { settings.profiles[mode].widgets[selected] = store.normalize(null).profiles[mode].widgets[selected]; render(); persist(); };
+  $('resetAll').onclick = () => { settings.profiles[mode] = store.normalize(null).profiles[mode]; render(); persist(); };
+  document.querySelectorAll('[data-layout-mode]').forEach(button => {
+    button.addEventListener('click', () => {
+      if (drag) { drag = null; persist(); }
+      mode = button.dataset.layoutMode;
+      if (!store.available(mode, selected)) selected = 'hudPanelTop';
+      document.querySelectorAll('[data-layout-mode]').forEach(option => {
+        option.setAttribute('aria-pressed', String(option.dataset.layoutMode === mode));
+      });
+      $('modeHint').textContent = mode === 'navigation'
+        ? 'Навигация включена: доступны все блоки. Настройки каждого режима сохраняются отдельно.'
+        : 'Навигация выключена: антирадар и GPS. Настройки каждого режима сохраняются отдельно.';
+      render();
+    });
+  });
   new ResizeObserver(() => { ratio = $('previewArea').clientWidth / 1000; $('canvas').style.transform = `scale(${ratio})`; }).observe($('previewArea'));
   frame.addEventListener('load', () => { render(); setTimeout(refreshHandles, 500); });
   window.addEventListener('storage', event => {

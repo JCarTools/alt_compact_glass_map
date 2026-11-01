@@ -125,6 +125,7 @@ function layout(){
     hudRow.classList.toggle("solo-radar", state.radar && !state.navi)
     hudRow.classList.toggle("solo-navi", state.navi && !state.radar)
     routeMap.classList.toggle("visible", state.navi)
+    window.dispatchEvent(new CustomEvent('hud-state', { detail: { ...state } }))
 }
 
 function test(){

@@ -4,11 +4,12 @@
   const preview = new URLSearchParams(location.search).get('preview') === '1';
   const slots = new Map();
   let settings = store.load();
+  let mode = 'radar';
   function apply(value) {
     settings = store.normalize(value);
     store.widgets.forEach(({ id }) => {
       const element = document.getElementById(id);
-      const item = settings.widgets[id];
+      const item = settings.profiles[mode].widgets[id];
       element.classList.toggle('user-hidden', !item.visible);
       const custom = item.x !== null && item.y !== null;
       let slot = slots.get(id);
@@ -35,6 +36,14 @@
       }
     });
   }
+  window.addEventListener('hud-state', event => {
+    mode = store.modeForState(event.detail);
+    apply(settings);
+  });
+  function setPreviewMode(nextMode) {
+    if (!preview || !store.modes.includes(nextMode) || mode === nextMode) return;
+    window.onAndroidEvent('hud', { hudSenderType: 'NAVI', naviOn: nextMode === 'navigation', turnType: 3, turnDist: 350, nextRoad: 'Улица', speedLimit: 60 });
+  }
   window.addEventListener('DOMContentLoaded', () => {
     if (preview) {
       document.body.classList.add('layout-preview');
@@ -45,7 +54,7 @@
     apply(settings);
     const observer = new ResizeObserver(() => apply(settings));
     store.widgets.forEach(({ id }) => observer.observe(document.getElementById(id)));
-    window.HUDLayout = { apply, rect(id) {
+    window.HUDLayout = { apply, setPreviewMode, rect(id) {
       const r = document.getElementById(id).getBoundingClientRect();
       return { x: r.x, y: r.y, width: r.width, height: r.height };
     } };
