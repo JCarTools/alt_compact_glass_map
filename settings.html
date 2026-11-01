@@ -7,7 +7,11 @@
   <link rel="stylesheet" href="settings.css">
 </head>
 <body>
-  <header><div><span class="eyebrow">ALT COMPACT GLASS</span><h1>Настройки экрана</h1></div><a href="index.html">Вернуться к HUD ↗</a></header>
+  <header>
+    <button id="backButton" class="back-button" type="button" aria-label="Назад — закрыть настройки"><span aria-hidden="true">←</span> Назад</button>
+    <div class="header-title"><span class="eyebrow">ALT COMPACT GLASS</span><h1>Настройки экрана</h1></div>
+    <a href="index.html">Вернуться к HUD ↗</a>
+  </header>
   <main>
     <section class="preview-panel">
       <div class="section-heading"><h2>Расположение элементов</h2><span>Предпросмотр · 1000 × 560</span></div>
@@ -28,6 +32,7 @@
       <p id="status" role="status" aria-live="polite">Изменения сохраняются автоматически</p>
     </aside>
   </main>
+  <script src="settings-back.js"></script>
   <script src="settings-store.js"></script><script src="settings.js"></script>
 </body>
 </html>
