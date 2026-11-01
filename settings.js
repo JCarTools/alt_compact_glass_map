@@ -1,5 +1,28 @@
 (function () {
   'use strict';
+
+  document.getElementById('backButton').addEventListener('click', function () {
+    // Catalog settings run in HudWidgetSettingsFragment, whose onClose
+    // callback finishes the native settings activity.
+    if (!window.androidApi) {
+      window.location.replace('index.html');
+      return;
+    }
+
+    try {
+      if (typeof window.androidApi.onClose !== 'function') {
+        throw new Error('Android onClose is unavailable');
+      }
+      window.androidApi.onClose('SECURE_TOKEN_2025');
+    } catch (error) {
+      console.error('Не удалось закрыть настройки', error);
+      document.getElementById('status').textContent = 'Не удалось закрыть экран. Используйте системную кнопку «Назад».';
+    }
+  });
+})();
+
+(function () {
+  'use strict';
   const store = window.HUDSettings;
   const $ = id => document.getElementById(id);
   const frame = $('preview');

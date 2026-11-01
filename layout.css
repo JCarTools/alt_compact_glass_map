@@ -5,12 +5,7 @@
   margin: 0 !important; transform: none !important; animation: none !important;
   max-width: none;
 }
-.settings-link { position: fixed; right: 12px; bottom: 12px; z-index: 100;
-  padding: 9px 13px; border: 1px solid #7ee7ff55; border-radius: 12px;
-  color: #e6f8ff; background: #101d2be6; text-decoration: none; font: 13px Arial; }
-.settings-link:focus-visible { outline: 2px solid #7ee7ff; }
 body.layout-preview { background: #101b29; }
 .layout-preview *, .layout-preview *::before, .layout-preview *::after { animation: none !important; transition: none !important; }
-.layout-preview .settings-link { display: none; }
 .layout-preview .route-map { background: repeating-linear-gradient(35deg,#192d3d 0 24px,#335064 25px 29px,#192d3d 30px 54px); }
 .layout-preview .route-map::after { content: 'Предпросмотр карты'; position: absolute; bottom: 8px; left: 8px; font: 10px Arial; }
