@@ -169,7 +169,7 @@ if ("ARAD" == data.hudSenderType){
         if(dis<1000){
             distanceTop.innerText = dis  + " m";
         }else{
-            distanceTop.innerText = dis/1000  + " km";
+            distanceTop.innerText = Math.floor(dis / 1000) + " km";
         }
 
         distanceTop.style.transform = "scale(1.25)";
@@ -199,14 +199,14 @@ if ("ARAD" == data.hudSenderType){
               if(dis<1000){
                 dist.innerText = dis  + " m";
               }else{
-                dist.innerText = dis/1000  + " km";
+                dist.innerText = Math.floor(dis / 1000) + " km";
               }
 /*
               if(dis<1000){
                  remainDist.innerText = "";
                  remainDist.classList.add("hidden")
               }else{
-                 remainDist.innerText = rdis/1000  + " km";
+                 remainDist.innerText = Math.floor(rdis / 1000) + " km";
                  remainDist.classList.remove("hidden")
               }
 */

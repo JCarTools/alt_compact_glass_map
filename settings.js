@@ -31,14 +31,29 @@
   let selected = store.widgets[0].id;
   let ratio = 1;
   let drag = null;
+  let saveFrame = null;
   const handles = new Map();
   const rows = new Map();
   const api = () => frame.contentWindow.HUDLayout;
   function persist() {
+    if (saveFrame !== null) {
+      window.cancelAnimationFrame(saveFrame);
+      saveFrame = null;
+    }
     $('status').textContent = store.save(settings)
       ? 'Настройки сохранены'
       : 'Не удалось сохранить. Проверьте доступ к хранилищу браузера.';
   }
+  function scheduleLiveSave() {
+    if (saveFrame !== null) return;
+    saveFrame = window.requestAnimationFrame(() => {
+      saveFrame = null;
+      persist();
+    });
+  }
+  window.addEventListener('pagehide', () => {
+    if (saveFrame !== null) persist();
+  });
   function position(id) {
     const item = settings.profiles[mode].widgets[id];
     const rect = api()?.rect(id);
@@ -80,6 +95,7 @@
     settings = store.normalize(settings);
     render();
     if (save) persist();
+    else scheduleLiveSave();
   }
   store.widgets.forEach(({ id, name }) => {
     const row = document.createElement('div');
